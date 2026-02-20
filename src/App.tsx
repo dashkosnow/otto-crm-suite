@@ -9,6 +9,7 @@ import ClientsPage from "./pages/ClientsPage";
 import SearchPage from "./pages/SearchPage";
 import ContractorsPage from "./pages/ContractorsPage";
 import ContractorDetailPage from "./pages/ContractorDetailPage";
+import FinancePage from "./pages/FinancePage";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 
@@ -28,7 +29,7 @@ const App = () => (
           <Route path="/contractors" element={<ContractorsPage />} />
           <Route path="/contractors/:id" element={<ContractorDetailPage />} />
           <Route path="/inventory" element={<PlaceholderPage title="Товары и Склад" description="Номенклатура, остатки по складам/поставщикам, приходы/расходы, документы прихода." />} />
-          <Route path="/finance" element={<PlaceholderPage title="Финансы" description="Мультивалютность, кассы, приход/расход денег, оплаты по заказам и контрагентам." />} />
+          <Route path="/finance" element={<FinancePage />} />
           <Route path="/settlements" element={<PlaceholderPage title="Взаиморасчёты" description="Долги покупателей и перед поставщиками, обороты, отчёты по взаиморасчётам." />} />
           <Route path="/reports" element={<PlaceholderPage title="Отчёты" description="Продажи, кассы, склады, взаиморасчёты. Экспорт в Excel и PDF." />} />
           <Route path="/settings" element={<PlaceholderPage title="Настройки" description="Роли и права, администрирование пользователей, аудит действий." />} />

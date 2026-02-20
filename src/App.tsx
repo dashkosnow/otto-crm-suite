@@ -8,6 +8,7 @@ import OrdersPage from "./pages/OrdersPage";
 import ClientsPage from "./pages/ClientsPage";
 import SearchPage from "./pages/SearchPage";
 import ContractorsPage from "./pages/ContractorsPage";
+import ContractorDetailPage from "./pages/ContractorDetailPage";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/clients" element={<ClientsPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/contractors" element={<ContractorsPage />} />
+          <Route path="/contractors/:id" element={<ContractorDetailPage />} />
           <Route path="/inventory" element={<PlaceholderPage title="Товары и Склад" description="Номенклатура, остатки по складам/поставщикам, приходы/расходы, документы прихода." />} />
           <Route path="/finance" element={<PlaceholderPage title="Финансы" description="Мультивалютность, кассы, приход/расход денег, оплаты по заказам и контрагентам." />} />
           <Route path="/settlements" element={<PlaceholderPage title="Взаиморасчёты" description="Долги покупателей и перед поставщиками, обороты, отчёты по взаиморасчётам." />} />

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Plus, MoreHorizontal, Phone, Mail, Building2, User, FileText, MapPin } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Contractor {
   id: number;
@@ -42,6 +43,7 @@ const balanceClass = (type: string) => {
 };
 
 const ContractorTable = ({ data, searchQuery }: { data: Contractor[]; searchQuery: string }) => {
+  const navigate = useNavigate();
   const filtered = data.filter(
     (c) =>
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -68,7 +70,7 @@ const ContractorTable = ({ data, searchQuery }: { data: Contractor[]; searchQuer
         </thead>
         <tbody className="divide-y divide-border">
           {filtered.map((c) => (
-            <tr key={c.id} className="hover:bg-muted/30 transition-colors cursor-pointer">
+            <tr key={c.id} className="hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => navigate(`/contractors/${c.id}`)}>
               <td className="px-5 py-3.5">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">

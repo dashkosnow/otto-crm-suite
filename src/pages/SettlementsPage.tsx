@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import CrmLayout from "@/components/CrmLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -74,6 +75,7 @@ const overdueTotal = settlements
 const overdueCount = settlements.filter(s => s.overdueAmount > 0).length;
 
 const SettlementsPage = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [tab, setTab] = useState("all");
 
@@ -186,7 +188,7 @@ const SettlementsPage = () => {
                   {filtered.map(s => {
                     const balanceColor = s.closingBalance > 0 ? "text-success" : s.closingBalance < 0 ? "text-destructive" : "text-muted-foreground";
                     return (
-                      <tr key={s.id} className="hover:bg-muted/30 transition-colors cursor-pointer">
+                      <tr key={s.id} className="hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => navigate(`/contractors/${s.id}`)}>
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">

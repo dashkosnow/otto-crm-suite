@@ -13,6 +13,7 @@ import FinancePage from "./pages/FinancePage";
 import SettlementsPage from "./pages/SettlementsPage";
 import InventoryPage from "./pages/InventoryPage";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import ReportsPage from "./pages/ReportsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,7 +34,7 @@ const App = () => (
           <Route path="/inventory" element={<InventoryPage />} />
           <Route path="/finance" element={<FinancePage />} />
           <Route path="/settlements" element={<SettlementsPage />} />
-          <Route path="/reports" element={<PlaceholderPage title="Отчёты" description="Продажи, кассы, склады, взаиморасчёты. Экспорт в Excel и PDF." />} />
+          <Route path="/reports" element={<ReportsPage />} />
           <Route path="/settings" element={<PlaceholderPage title="Настройки" description="Роли и права, администрирование пользователей, аудит действий." />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

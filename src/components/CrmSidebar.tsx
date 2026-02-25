@@ -12,20 +12,59 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  FileText,
+  ClipboardList,
+  ArrowDownRight,
+  ArrowUpRight,
+  Receipt,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { path: "/", icon: LayoutDashboard, label: "Дашборд" },
-  { path: "/orders", icon: ShoppingCart, label: "Заказы" },
-  { path: "/clients", icon: Users, label: "Клиенты" },
-  { path: "/search", icon: Search, label: "Поиск артикулов" },
-  { path: "/contractors", icon: Building2, label: "Контрагенты" },
-  { path: "/inventory", icon: Package, label: "Товары/Склад" },
-  { path: "/finance", icon: Wallet, label: "Финансы" },
-  { path: "/settlements", icon: ArrowLeftRight, label: "Взаиморасчёты" },
-  { path: "/reports", icon: BarChart3, label: "Отчёты" },
+interface NavItem {
+  path: string;
+  icon: React.ElementType;
+  label: string;
+}
+
+interface NavGroup {
+  title?: string;
+  items: NavItem[];
+}
+
+const navGroups: NavGroup[] = [
+  {
+    items: [
+      { path: "/", icon: LayoutDashboard, label: "Дашборд" },
+    ],
+  },
+  {
+    title: "Документи",
+    items: [
+      { path: "/client-orders", icon: ClipboardList, label: "Заявки клієнтів" },
+      { path: "/supplier-orders", icon: ShoppingCart, label: "Заявки постачальн." },
+      { path: "/purchase-invoices", icon: ArrowDownRight, label: "Приходні накладні" },
+      { path: "/sales-invoices", icon: ArrowUpRight, label: "Видаткові накладні" },
+      { path: "/invoices", icon: Receipt, label: "Рахунки" },
+    ],
+  },
+  {
+    title: "Довідники",
+    items: [
+      { path: "/clients", icon: Users, label: "Клієнти" },
+      { path: "/contractors", icon: Building2, label: "Контрагенти" },
+      { path: "/search", icon: Search, label: "Пошук артикулів" },
+      { path: "/inventory", icon: Package, label: "Товари/Склад" },
+    ],
+  },
+  {
+    title: "Фінанси",
+    items: [
+      { path: "/finance", icon: Wallet, label: "Фінанси" },
+      { path: "/settlements", icon: ArrowLeftRight, label: "Взаєморозрахунки" },
+      { path: "/reports", icon: BarChart3, label: "Звіти" },
+    ],
+  },
 ];
 
 const CrmSidebar = () => {
@@ -55,26 +94,40 @@ const CrmSidebar = () => {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors",
-                isActive
-                  ? "sidebar-item-active"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-              )}
-              title={collapsed ? item.label : undefined}
-            >
-              <item.icon className="w-4.5 h-4.5 shrink-0" size={18} />
-              {!collapsed && <span className="truncate">{item.label}</span>}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 py-3 px-2 space-y-1 overflow-y-auto">
+        {navGroups.map((group, gi) => (
+          <div key={gi}>
+            {group.title && !collapsed && (
+              <p className="text-[10px] uppercase tracking-wider text-sidebar-muted px-3 pt-3 pb-1 font-semibold">
+                {group.title}
+              </p>
+            )}
+            {collapsed && gi > 0 && (
+              <div className="mx-3 my-2 border-t border-sidebar-border" />
+            )}
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                      isActive
+                        ? "sidebar-item-active"
+                        : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                    )}
+                    title={collapsed ? item.label : undefined}
+                  >
+                    <item.icon className="shrink-0" size={18} />
+                    {!collapsed && <span className="truncate">{item.label}</span>}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* Settings + collapse */}
@@ -89,14 +142,14 @@ const CrmSidebar = () => {
           )}
         >
           <Settings size={18} className="shrink-0" />
-          {!collapsed && <span>Настройки</span>}
+          {!collapsed && <span>Налаштування</span>}
         </Link>
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent/50 w-full transition-colors"
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-          {!collapsed && <span>Свернуть</span>}
+          {!collapsed && <span>Згорнути</span>}
         </button>
       </div>
     </aside>

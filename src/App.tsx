@@ -5,10 +5,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import ClientOrdersPage from "./pages/ClientOrdersPage";
+import ClientOrderDetailPage from "./pages/ClientOrderDetailPage";
 import SupplierOrdersPage from "./pages/SupplierOrdersPage";
 import PurchaseInvoicesPage from "./pages/PurchaseInvoicesPage";
+import PurchaseInvoiceDetailPage from "./pages/PurchaseInvoiceDetailPage";
 import SalesInvoicesPage from "./pages/SalesInvoicesPage";
+import SalesInvoiceDetailPage from "./pages/SalesInvoiceDetailPage";
 import InvoicesPage from "./pages/InvoicesPage";
+import InvoiceDetailPage from "./pages/InvoiceDetailPage";
 import ClientsPage from "./pages/ClientsPage";
 import SearchPage from "./pages/SearchPage";
 import ContractorsPage from "./pages/ContractorsPage";
@@ -31,10 +35,14 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/client-orders" element={<ClientOrdersPage />} />
+          <Route path="/client-orders/:id" element={<ClientOrderDetailPage />} />
           <Route path="/supplier-orders" element={<SupplierOrdersPage />} />
           <Route path="/purchase-invoices" element={<PurchaseInvoicesPage />} />
+          <Route path="/purchase-invoices/:id" element={<PurchaseInvoiceDetailPage />} />
           <Route path="/sales-invoices" element={<SalesInvoicesPage />} />
+          <Route path="/sales-invoices/:id" element={<SalesInvoiceDetailPage />} />
           <Route path="/invoices" element={<InvoicesPage />} />
+          <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
           <Route path="/orders" element={<ClientOrdersPage />} />
           <Route path="/clients" element={<ClientsPage />} />
           <Route path="/search" element={<SearchPage />} />

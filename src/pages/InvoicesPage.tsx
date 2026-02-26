@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import CrmLayout from "@/components/CrmLayout";
 import DocumentTable, { StatusBadge, LinkedDocLink, type Column } from "@/components/DocumentTable";
 import { Badge } from "@/components/ui/badge";
@@ -57,6 +58,7 @@ const columns: Column<Invoice>[] = [
 
 const InvoicesPage = () => {
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
   const filtered = invoices.filter(
     (o) =>
       o.number.toLowerCase().includes(search.toLowerCase()) ||
@@ -74,6 +76,7 @@ const InvoicesPage = () => {
         onSearchChange={setSearch}
         searchPlaceholder="Пошук за номером або контрагентом..."
         createLabel="Новий рахунок"
+        onRowClick={(row) => navigate(`/invoices/${row.id}`)}
       />
     </CrmLayout>
   );

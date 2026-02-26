@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import CrmLayout from "@/components/CrmLayout";
 import DocumentTable, { StatusBadge, LinkedDocLink, type Column } from "@/components/DocumentTable";
 import { clientOrders, formatAmount, type ClientOrder } from "@/data/documents";
@@ -43,6 +44,7 @@ const columns: Column<ClientOrder>[] = [
 
 const ClientOrdersPage = () => {
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
   const filtered = clientOrders.filter(
     (o) =>
       o.number.toLowerCase().includes(search.toLowerCase()) ||
@@ -61,6 +63,7 @@ const ClientOrdersPage = () => {
         onSearchChange={setSearch}
         searchPlaceholder="Пошук за номером, клієнтом, VIN..."
         createLabel="Нова заявка"
+        onRowClick={(row) => navigate(`/client-orders/${row.id}`)}
       />
     </CrmLayout>
   );

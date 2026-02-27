@@ -1,10 +1,12 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import CrmLayout from "@/components/CrmLayout";
 import DocumentDetail from "@/components/DocumentDetail";
 import { clientOrders, supplierOrders, salesInvoices, invoices } from "@/data/documents";
+import { toast } from "sonner";
 
 const ClientOrderDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const doc = clientOrders.find((d) => d.id === id);
 
   if (!doc) {
@@ -28,6 +30,21 @@ const ClientOrderDetailPage = () => {
       : []),
   ];
 
+  const createActions = [
+    ...(!doc.linkedSupplierOrders.length ? [{
+      label: "Заявку постачальнику",
+      onClick: () => toast.success("Заявку постачальнику створено", { description: `На основі ${doc.number}` }),
+    }] : []),
+    ...(!doc.linkedSalesInvoice ? [{
+      label: "Видаткову накладну",
+      onClick: () => toast.success("Видаткову накладну створено", { description: `На основі ${doc.number}` }),
+    }] : []),
+    ...(!doc.linkedInvoice ? [{
+      label: "Рахунок клієнту",
+      onClick: () => toast.success("Рахунок створено", { description: `На основі ${doc.number}` }),
+    }] : []),
+  ];
+
   return (
     <CrmLayout>
       <DocumentDetail
@@ -48,6 +65,7 @@ const ClientOrderDetailPage = () => {
         total={doc.total}
         currency={doc.currency}
         linkedDocs={linkedDocs}
+        createActions={createActions}
       />
     </CrmLayout>
   );

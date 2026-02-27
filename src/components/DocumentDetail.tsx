@@ -2,9 +2,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, ExternalLink, FileText, Printer } from "lucide-react";
+import { ArrowLeft, ExternalLink, FileText, Plus, Printer } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { statusConfig, formatAmount, type DocItem, type DocStatus } from "@/data/documents";
+import { toast } from "sonner";
 
 interface InfoField {
   label: string;
@@ -14,6 +15,12 @@ interface InfoField {
 interface LinkedDoc {
   label: string;
   path: string;
+}
+
+interface CreateAction {
+  label: string;
+  icon?: React.ReactNode;
+  onClick: () => void;
 }
 
 interface DocumentDetailProps {
@@ -28,6 +35,7 @@ interface DocumentDetailProps {
   total: number;
   currency: string;
   linkedDocs?: LinkedDoc[];
+  createActions?: CreateAction[];
   extraContent?: React.ReactNode;
 }
 
@@ -43,6 +51,7 @@ export default function DocumentDetail({
   total,
   currency,
   linkedDocs,
+  createActions,
   extraContent,
 }: DocumentDetailProps) {
   const navigate = useNavigate();
@@ -106,6 +115,23 @@ export default function DocumentDetail({
               ))
             ) : (
               <p className="text-sm text-muted-foreground">Немає пов'язаних документів</p>
+            )}
+            {createActions && createActions.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-border space-y-1.5">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Створити документ</p>
+                {createActions.map((action, i) => (
+                  <Button
+                    key={i}
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start gap-2 text-sm"
+                    onClick={action.onClick}
+                  >
+                    <Plus size={14} />
+                    {action.label}
+                  </Button>
+                ))}
+              </div>
             )}
             {extraContent}
           </CardContent>

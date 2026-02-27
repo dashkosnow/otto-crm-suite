@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import CrmLayout from "@/components/CrmLayout";
 import DocumentDetail from "@/components/DocumentDetail";
 import { salesInvoices, clientOrders, invoices } from "@/data/documents";
+import { toast } from "sonner";
 
 const SalesInvoiceDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +25,13 @@ const SalesInvoiceDetailPage = () => {
       : []),
   ];
 
+  const createActions = [
+    ...(!doc.linkedInvoice ? [{
+      label: "Рахунок клієнту",
+      onClick: () => toast.success("Рахунок створено", { description: `На основі ${doc.number}` }),
+    }] : []),
+  ];
+
   return (
     <CrmLayout>
       <DocumentDetail
@@ -42,6 +50,7 @@ const SalesInvoiceDetailPage = () => {
         total={doc.total}
         currency={doc.currency}
         linkedDocs={linkedDocs}
+        createActions={createActions}
       />
     </CrmLayout>
   );

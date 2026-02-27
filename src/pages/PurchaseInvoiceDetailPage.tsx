@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import CrmLayout from "@/components/CrmLayout";
 import DocumentDetail from "@/components/DocumentDetail";
 import { purchaseInvoices, supplierOrders } from "@/data/documents";
+import { toast } from "sonner";
 
 const PurchaseInvoiceDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +19,11 @@ const PurchaseInvoiceDetailPage = () => {
   const linkedDocs = doc.linkedSupplierOrder
     ? [{ label: `Заявка пост. ${supplierOrders.find((s) => s.id === doc.linkedSupplierOrder)?.number || doc.linkedSupplierOrder}`, path: `/supplier-orders` }]
     : [];
+
+  const createActions = [{
+    label: "Рахунок постачальнику (вхідний)",
+    onClick: () => toast.success("Вхідний рахунок створено", { description: `На основі ${doc.number}` }),
+  }];
 
   return (
     <CrmLayout>
@@ -37,6 +43,7 @@ const PurchaseInvoiceDetailPage = () => {
         total={doc.total}
         currency={doc.currency}
         linkedDocs={linkedDocs}
+        createActions={createActions}
       />
     </CrmLayout>
   );

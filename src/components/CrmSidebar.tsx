@@ -17,6 +17,7 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   Receipt,
+  Target,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -49,10 +50,16 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    title: "Довідники",
+    title: "CRM",
     items: [
+      { path: "/leads", icon: Target, label: "Ліди" },
       { path: "/clients", icon: Users, label: "Клієнти" },
       { path: "/contractors", icon: Building2, label: "Контрагенти" },
+    ],
+  },
+  {
+    title: "Довідники",
+    items: [
       { path: "/search", icon: Search, label: "Пошук артикулів" },
       { path: "/inventory", icon: Package, label: "Товари/Склад" },
     ],

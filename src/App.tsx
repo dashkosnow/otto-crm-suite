@@ -21,6 +21,7 @@ import FinancePage from "./pages/FinancePage";
 import SettlementsPage from "./pages/SettlementsPage";
 import InventoryPage from "./pages/InventoryPage";
 import ReportsPage from "./pages/ReportsPage";
+import LeadsPage from "./pages/LeadsPage";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/invoices" element={<InvoicesPage />} />
           <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
           <Route path="/orders" element={<ClientOrdersPage />} />
+          <Route path="/leads" element={<LeadsPage />} />
           <Route path="/clients" element={<ClientsPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/contractors" element={<ContractorsPage />} />

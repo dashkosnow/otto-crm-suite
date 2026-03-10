@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { leadsData, leadStages, Lead, LeadStage } from "@/data/leads";
 import { convertLeadToClient } from "@/data/leadConversion";
 import { toast } from "sonner";
+import CreateLeadDialog from "@/components/CreateLeadDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,

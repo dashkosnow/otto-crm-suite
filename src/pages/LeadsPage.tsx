@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { leadsData, leadStages, Lead, LeadStage } from "@/data/leads";
 import { convertLeadToClient } from "@/data/leadConversion";
 import { toast } from "sonner";
+import CreateLeadDialog from "@/components/CreateLeadDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +23,7 @@ const LeadsPage = () => {
   const [leads, setLeads] = useState<Lead[]>(leadsData);
   const [searchQuery, setSearchQuery] = useState("");
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const navigate = useNavigate();
 
   const activeStages = leadStages.filter(s => s.key !== "won" && s.key !== "lost");
@@ -85,6 +87,11 @@ const LeadsPage = () => {
   const totalAmount = leads.filter(l => l.stage !== "lost").reduce((sum, l) => sum + (l.amount || 0), 0);
   const wonAmount = leads.filter(l => l.stage === "won").reduce((sum, l) => sum + (l.amount || 0), 0);
 
+  const handleLeadCreated = (newLead: Lead) => {
+    setLeads((prev) => [newLead, ...prev]);
+    toast.success(`Лід "${newLead.name}" створено`);
+  };
+
   return (
     <CrmLayout>
       <div className="space-y-5">
@@ -96,11 +103,13 @@ const LeadsPage = () => {
               {leads.length} лідів · Потенціал {totalAmount.toLocaleString("uk-UA")} ₴ · Виграно {wonAmount.toLocaleString("uk-UA")} ₴
             </p>
           </div>
-          <Button size="sm" className="gap-1.5">
+          <Button size="sm" className="gap-1.5" onClick={() => setShowCreateDialog(true)}>
             <Plus size={16} />
             Новий лід
           </Button>
         </div>
+
+        <CreateLeadDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} onCreated={handleLeadCreated} />
 
         {/* Search */}
         <div className="relative max-w-sm">

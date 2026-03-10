@@ -103,11 +103,13 @@ const LeadsPage = () => {
               {leads.length} лідів · Потенціал {totalAmount.toLocaleString("uk-UA")} ₴ · Виграно {wonAmount.toLocaleString("uk-UA")} ₴
             </p>
           </div>
-          <Button size="sm" className="gap-1.5">
+          <Button size="sm" className="gap-1.5" onClick={() => setShowCreateDialog(true)}>
             <Plus size={16} />
             Новий лід
           </Button>
         </div>
+
+        <CreateLeadDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} onCreated={handleLeadCreated} />
 
         {/* Search */}
         <div className="relative max-w-sm">

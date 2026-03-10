@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,13 +33,14 @@ const leadSchema = z.object({
 const sources = ["Google Ads", "Instagram", "Рекомендація", "Виставка", "Сайт", "Холодний дзвінок"];
 const managers = ["Олена К.", "Максим І."];
 
-interface CreateLeadDialogProps {
+interface LeadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreated: (lead: Lead) => void;
+  onSave: (lead: Lead) => void;
+  editLead?: Lead | null;
 }
 
-const CreateLeadDialog = ({ open, onOpenChange, onCreated }: CreateLeadDialogProps) => {
+const LeadDialog = ({ open, onOpenChange, onSave, editLead }: LeadDialogProps) => {
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
   const [phone, setPhone] = useState("");
@@ -50,11 +51,24 @@ const CreateLeadDialog = ({ open, onOpenChange, onCreated }: CreateLeadDialogPro
   const [note, setNote] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const resetForm = () => {
-    setName(""); setCompany(""); setPhone(""); setEmail("");
-    setSource(""); setAmount(""); setManager(""); setNote("");
+  const isEditing = !!editLead;
+
+  useEffect(() => {
+    if (editLead) {
+      setName(editLead.name);
+      setCompany(editLead.company || "");
+      setPhone(editLead.phone);
+      setEmail(editLead.email || "");
+      setSource(editLead.source);
+      setAmount(editLead.amount ? String(editLead.amount) : "");
+      setManager(editLead.manager);
+      setNote(editLead.note || "");
+    } else {
+      setName(""); setCompany(""); setPhone(""); setEmail("");
+      setSource(""); setAmount(""); setManager(""); setNote("");
+    }
     setErrors({});
-  };
+  }, [editLead, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,23 +95,22 @@ const CreateLeadDialog = ({ open, onOpenChange, onCreated }: CreateLeadDialogPro
 
     const today = new Date().toLocaleDateString("uk-UA", { day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, ".");
 
-    const newLead: Lead = {
-      id: `lead-${Date.now()}`,
+    const lead: Lead = {
+      id: editLead?.id || `lead-${Date.now()}`,
       name: parsed.data.name,
       company: parsed.data.company,
       phone: parsed.data.phone,
       email: parsed.data.email === "" ? undefined : parsed.data.email,
       source: parsed.data.source,
-      stage: "new",
+      stage: editLead?.stage || "new",
       manager: parsed.data.manager,
       amount: parsed.data.amount,
       note: parsed.data.note,
-      createdAt: today,
+      createdAt: editLead?.createdAt || today,
       updatedAt: today,
     };
 
-    onCreated(newLead);
-    resetForm();
+    onSave(lead);
     onOpenChange(false);
   };
 
@@ -105,7 +118,7 @@ const CreateLeadDialog = ({ open, onOpenChange, onCreated }: CreateLeadDialogPro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>Новий лід</DialogTitle>
+          <DialogTitle>{isEditing ? "Редагувати лід" : "Новий лід"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -167,7 +180,7 @@ const CreateLeadDialog = ({ open, onOpenChange, onCreated }: CreateLeadDialogPro
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Скасувати</Button>
-            <Button type="submit">Створити лід</Button>
+            <Button type="submit">{isEditing ? "Зберегти" : "Створити лід"}</Button>
           </div>
         </form>
       </DialogContent>
@@ -175,4 +188,4 @@ const CreateLeadDialog = ({ open, onOpenChange, onCreated }: CreateLeadDialogPro
   );
 };
 
-export default CreateLeadDialog;
+export default LeadDialog;

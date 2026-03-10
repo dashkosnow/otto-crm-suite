@@ -23,6 +23,7 @@ const LeadsPage = () => {
   const [leads, setLeads] = useState<Lead[]>(leadsData);
   const [searchQuery, setSearchQuery] = useState("");
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const navigate = useNavigate();
 
   const activeStages = leadStages.filter(s => s.key !== "won" && s.key !== "lost");

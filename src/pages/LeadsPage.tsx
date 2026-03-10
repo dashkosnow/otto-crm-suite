@@ -22,6 +22,7 @@ const LeadsPage = () => {
   const [leads, setLeads] = useState<Lead[]>(leadsData);
   const [searchQuery, setSearchQuery] = useState("");
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const activeStages = leadStages.filter(s => s.key !== "won" && s.key !== "lost");
   const closedStages = leadStages.filter(s => s.key === "won" || s.key === "lost");
@@ -36,17 +37,40 @@ const LeadsPage = () => {
   const getLeadsByStage = (stage: LeadStage) =>
     filteredLeads.filter((l) => l.stage === stage);
 
-  const moveLeadToStage = (leadId: string, newStage: LeadStage) => {
+  const handleConvertLead = (leadId: string) => {
+    const lead = leads.find((l) => l.id === leadId);
+    if (!lead) return;
+
+    const { contractor, clientOrder } = convertLeadToClient(lead);
+
     setLeads((prev) =>
-      prev.map((l) => (l.id === leadId ? { ...l, stage: newStage, updatedAt: "01.03.2026" } : l))
+      prev.map((l) =>
+        l.id === leadId
+          ? { ...l, stage: "won" as LeadStage, updatedAt: "10.03.2026", note: `Конвертовано → ${contractor.name} (${clientOrder.number})` }
+          : l
+      )
+    );
+
+    toast.success(`${lead.name} → Клієнт створено!`, {
+      description: `${contractor.name} + заявка ${clientOrder.number}`,
+      action: {
+        label: "Відкрити клієнта",
+        onClick: () => navigate(`/contractors/${contractor.id}`),
+      },
+    });
+  };
+
+  const moveLeadToStage = (leadId: string, newStage: LeadStage) => {
+    if (newStage === "won") {
+      handleConvertLead(leadId);
+      return;
+    }
+    setLeads((prev) =>
+      prev.map((l) => (l.id === leadId ? { ...l, stage: newStage, updatedAt: "10.03.2026" } : l))
     );
     const lead = leads.find((l) => l.id === leadId);
     const stageLabel = leadStages.find((s) => s.key === newStage)?.label;
-    if (newStage === "won") {
-      toast.success(`${lead?.name} — Угода!`, { description: "Лід конвертовано. Створіть клієнта та замовлення." });
-    } else {
-      toast.info(`${lead?.name} → ${stageLabel}`);
-    }
+    toast.info(`${lead?.name} → ${stageLabel}`);
   };
 
   const handleDragStart = (id: string) => setDraggedId(id);

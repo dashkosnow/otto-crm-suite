@@ -87,6 +87,11 @@ const LeadsPage = () => {
   const totalAmount = leads.filter(l => l.stage !== "lost").reduce((sum, l) => sum + (l.amount || 0), 0);
   const wonAmount = leads.filter(l => l.stage === "won").reduce((sum, l) => sum + (l.amount || 0), 0);
 
+  const handleLeadCreated = (newLead: Lead) => {
+    setLeads((prev) => [newLead, ...prev]);
+    toast.success(`Лід "${newLead.name}" створено`);
+  };
+
   return (
     <CrmLayout>
       <div className="space-y-5">

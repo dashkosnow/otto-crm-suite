@@ -7,7 +7,9 @@ import {
   MessageSquare, ArrowRight, UserPlus, MoreHorizontal, Zap,
 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { leadsData, leadStages, Lead, LeadStage } from "@/data/leads";
+import { convertLeadToClient } from "@/data/leadConversion";
 import { toast } from "sonner";
 import {
   DropdownMenu,

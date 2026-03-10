@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Plus, Search, Phone, Mail, Building2, User, Calendar, DollarSign,
+  Plus, Search, Phone, Mail, Building2, User, Calendar,
   MessageSquare, ArrowRight, UserPlus, MoreHorizontal, Zap,
 } from "lucide-react";
 import { useState } from "react";
@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { leadsData, leadStages, Lead, LeadStage } from "@/data/leads";
 import { convertLeadToClient } from "@/data/leadConversion";
 import { toast } from "sonner";
-import CreateLeadDialog from "@/components/CreateLeadDialog";
+import LeadDialog from "@/components/CreateLeadDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +23,8 @@ const LeadsPage = () => {
   const [leads, setLeads] = useState<Lead[]>(leadsData);
   const [searchQuery, setSearchQuery] = useState("");
   const [draggedId, setDraggedId] = useState<string | null>(null);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const navigate = useNavigate();
 
   const activeStages = leadStages.filter(s => s.key !== "won" && s.key !== "lost");
@@ -42,9 +43,7 @@ const LeadsPage = () => {
   const handleConvertLead = (leadId: string) => {
     const lead = leads.find((l) => l.id === leadId);
     if (!lead) return;
-
     const { contractor, clientOrder } = convertLeadToClient(lead);
-
     setLeads((prev) =>
       prev.map((l) =>
         l.id === leadId
@@ -52,50 +51,48 @@ const LeadsPage = () => {
           : l
       )
     );
-
     toast.success(`${lead.name} → Клієнт створено!`, {
       description: `${contractor.name} + заявка ${clientOrder.number}`,
-      action: {
-        label: "Відкрити клієнта",
-        onClick: () => navigate(`/contractors/${contractor.id}`),
-      },
+      action: { label: "Відкрити клієнта", onClick: () => navigate(`/contractors/${contractor.id}`) },
     });
   };
 
   const moveLeadToStage = (leadId: string, newStage: LeadStage) => {
-    if (newStage === "won") {
-      handleConvertLead(leadId);
-      return;
-    }
+    if (newStage === "won") { handleConvertLead(leadId); return; }
     setLeads((prev) =>
       prev.map((l) => (l.id === leadId ? { ...l, stage: newStage, updatedAt: "10.03.2026" } : l))
     );
     const lead = leads.find((l) => l.id === leadId);
-    const stageLabel = leadStages.find((s) => s.key === newStage)?.label;
-    toast.info(`${lead?.name} → ${stageLabel}`);
+    toast.info(`${lead?.name} → ${leadStages.find((s) => s.key === newStage)?.label}`);
   };
 
   const handleDragStart = (id: string) => setDraggedId(id);
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
   const handleDrop = (stage: LeadStage) => {
-    if (draggedId) {
-      moveLeadToStage(draggedId, stage);
-      setDraggedId(null);
-    }
+    if (draggedId) { moveLeadToStage(draggedId, stage); setDraggedId(null); }
   };
 
   const totalAmount = leads.filter(l => l.stage !== "lost").reduce((sum, l) => sum + (l.amount || 0), 0);
   const wonAmount = leads.filter(l => l.stage === "won").reduce((sum, l) => sum + (l.amount || 0), 0);
 
-  const handleLeadCreated = (newLead: Lead) => {
-    setLeads((prev) => [newLead, ...prev]);
-    toast.success(`Лід "${newLead.name}" створено`);
+  const openCreate = () => { setEditingLead(null); setDialogOpen(true); };
+  const openEdit = (lead: Lead) => { setEditingLead(lead); setDialogOpen(true); };
+
+  const handleSaveLead = (lead: Lead) => {
+    setLeads((prev) => {
+      const exists = prev.find((l) => l.id === lead.id);
+      if (exists) {
+        toast.success(`Лід "${lead.name}" оновлено`);
+        return prev.map((l) => (l.id === lead.id ? lead : l));
+      }
+      toast.success(`Лід "${lead.name}" створено`);
+      return [lead, ...prev];
+    });
   };
 
   return (
     <CrmLayout>
       <div className="space-y-5">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Воронка лідів</h1>
@@ -103,42 +100,27 @@ const LeadsPage = () => {
               {leads.length} лідів · Потенціал {totalAmount.toLocaleString("uk-UA")} ₴ · Виграно {wonAmount.toLocaleString("uk-UA")} ₴
             </p>
           </div>
-          <Button size="sm" className="gap-1.5" onClick={() => setShowCreateDialog(true)}>
-            <Plus size={16} />
-            Новий лід
+          <Button size="sm" className="gap-1.5" onClick={openCreate}>
+            <Plus size={16} /> Новий лід
           </Button>
         </div>
 
-        <CreateLeadDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} onCreated={handleLeadCreated} />
+        <LeadDialog open={dialogOpen} onOpenChange={setDialogOpen} onSave={handleSaveLead} editLead={editingLead} />
 
-        {/* Search */}
         <div className="relative max-w-sm">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Пошук лідів..."
-            className="pl-9"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <Input placeholder="Пошук лідів..." className="pl-9" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
         </div>
 
-        {/* Kanban board */}
         <div className="flex gap-4 overflow-x-auto pb-4">
           {activeStages.map((stage) => {
             const stageLeads = getLeadsByStage(stage.key);
             const stageTotal = stageLeads.reduce((s, l) => s + (l.amount || 0), 0);
             return (
-              <div
-                key={stage.key}
-                className="min-w-[280px] w-[280px] shrink-0"
-                onDragOver={handleDragOver}
-                onDrop={() => handleDrop(stage.key)}
-              >
+              <div key={stage.key} className="min-w-[280px] w-[280px] shrink-0" onDragOver={handleDragOver} onDrop={() => handleDrop(stage.key)}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className={`text-xs ${stage.color}`}>
-                      {stage.label}
-                    </Badge>
+                    <Badge variant="outline" className={`text-xs ${stage.color}`}>{stage.label}</Badge>
                     <span className="text-xs text-muted-foreground">{stageLeads.length}</span>
                   </div>
                   <span className="text-xs font-medium text-muted-foreground">
@@ -147,17 +129,10 @@ const LeadsPage = () => {
                 </div>
                 <div className="space-y-2">
                   {stageLeads.map((lead) => (
-                    <LeadCard
-                      key={lead.id}
-                      lead={lead}
-                      onDragStart={() => handleDragStart(lead.id)}
-                      onMoveToStage={(s) => moveLeadToStage(lead.id, s)}
-                    />
+                    <LeadCard key={lead.id} lead={lead} onDragStart={() => handleDragStart(lead.id)} onMoveToStage={(s) => moveLeadToStage(lead.id, s)} onClick={() => openEdit(lead)} />
                   ))}
                   {stageLeads.length === 0 && (
-                    <div className="rounded-lg border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
-                      Перетягніть лід сюди
-                    </div>
+                    <div className="rounded-lg border border-dashed border-border p-6 text-center text-xs text-muted-foreground">Перетягніть лід сюди</div>
                   )}
                 </div>
               </div>
@@ -165,27 +140,19 @@ const LeadsPage = () => {
           })}
         </div>
 
-        {/* Closed leads */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {closedStages.map((stage) => {
             const stageLeads = getLeadsByStage(stage.key);
             return (
-              <div
-                key={stage.key}
-                className="bg-card rounded-lg border border-border p-4"
-                onDragOver={handleDragOver}
-                onDrop={() => handleDrop(stage.key)}
-              >
+              <div key={stage.key} className="bg-card rounded-lg border border-border p-4" onDragOver={handleDragOver} onDrop={() => handleDrop(stage.key)}>
                 <div className="flex items-center gap-2 mb-3">
-                  <Badge variant="outline" className={`text-xs ${stage.color}`}>
-                    {stage.label}
-                  </Badge>
+                  <Badge variant="outline" className={`text-xs ${stage.color}`}>{stage.label}</Badge>
                   <span className="text-xs text-muted-foreground">{stageLeads.length}</span>
                 </div>
                 {stageLeads.length > 0 ? (
                   <div className="space-y-2">
                     {stageLeads.map((lead) => (
-                      <div key={lead.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                      <div key={lead.id} className="flex items-center justify-between py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-2 -mx-2 transition-colors" onClick={() => openEdit(lead)}>
                         <div>
                           <p className="text-sm font-medium text-card-foreground">{lead.name}</p>
                           {lead.company && <p className="text-xs text-muted-foreground">{lead.company}</p>}
@@ -210,13 +177,9 @@ const LeadsPage = () => {
 };
 
 const LeadCard = ({
-  lead,
-  onDragStart,
-  onMoveToStage,
+  lead, onDragStart, onMoveToStage, onClick,
 }: {
-  lead: Lead;
-  onDragStart: () => void;
-  onMoveToStage: (stage: LeadStage) => void;
+  lead: Lead; onDragStart: () => void; onMoveToStage: (stage: LeadStage) => void; onClick: () => void;
 }) => {
   const nextStages = leadStages.filter(s => s.key !== lead.stage);
 
@@ -224,7 +187,8 @@ const LeadCard = ({
     <div
       draggable
       onDragStart={onDragStart}
-      className="bg-card rounded-lg border border-border p-3.5 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing animate-fade-in"
+      onClick={onClick}
+      className="bg-card rounded-lg border border-border p-3.5 hover:shadow-md transition-shadow cursor-pointer active:cursor-grabbing animate-fade-in"
     >
       <div className="flex items-start justify-between mb-2">
         <div>
@@ -237,17 +201,17 @@ const LeadCard = ({
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="text-muted-foreground hover:text-foreground">
+            <button className="text-muted-foreground hover:text-foreground" onClick={(e) => e.stopPropagation()}>
               <MoreHorizontal size={14} />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
             {nextStages.map((s) => (
-              <DropdownMenuItem key={s.key} onClick={() => onMoveToStage(s.key)} className="text-xs">
+              <DropdownMenuItem key={s.key} onClick={(e) => { e.stopPropagation(); onMoveToStage(s.key); }} className="text-xs">
                 <ArrowRight size={12} className="mr-2" /> {s.label}
               </DropdownMenuItem>
             ))}
-            <DropdownMenuItem className="text-xs" onClick={() => onMoveToStage("won")}>
+            <DropdownMenuItem className="text-xs" onClick={(e) => { e.stopPropagation(); onMoveToStage("won"); }}>
               <UserPlus size={12} className="mr-2" /> Конвертувати в клієнта
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -255,27 +219,15 @@ const LeadCard = ({
       </div>
 
       <div className="space-y-1.5 text-xs text-muted-foreground">
-        <p className="flex items-center gap-1.5">
-          <Phone size={10} /> {lead.phone}
-        </p>
-        {lead.email && (
-          <p className="flex items-center gap-1.5">
-            <Mail size={10} /> {lead.email}
-          </p>
-        )}
+        <p className="flex items-center gap-1.5"><Phone size={10} /> {lead.phone}</p>
+        {lead.email && <p className="flex items-center gap-1.5"><Mail size={10} /> {lead.email}</p>}
       </div>
 
       <div className="flex items-center justify-between mt-3 pt-2 border-t border-border">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-            <Zap size={8} className="mr-0.5" /> {lead.source}
-          </Badge>
-        </div>
-        {lead.amount && (
-          <span className="text-xs font-semibold text-card-foreground">
-            {lead.amount.toLocaleString("uk-UA")} ₴
-          </span>
-        )}
+        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+          <Zap size={8} className="mr-0.5" /> {lead.source}
+        </Badge>
+        {lead.amount && <span className="text-xs font-semibold text-card-foreground">{lead.amount.toLocaleString("uk-UA")} ₴</span>}
       </div>
 
       {lead.note && (
@@ -285,12 +237,8 @@ const LeadCard = ({
       )}
 
       <div className="flex items-center justify-between mt-2">
-        <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-          <User size={9} /> {lead.manager}
-        </span>
-        <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-          <Calendar size={9} /> {lead.updatedAt}
-        </span>
+        <span className="text-[10px] text-muted-foreground flex items-center gap-1"><User size={9} /> {lead.manager}</span>
+        <span className="text-[10px] text-muted-foreground flex items-center gap-1"><Calendar size={9} /> {lead.updatedAt}</span>
       </div>
     </div>
   );

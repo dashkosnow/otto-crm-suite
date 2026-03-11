@@ -109,70 +109,85 @@ const LeadsPage = () => {
 
         <LeadDialog open={dialogOpen} onOpenChange={setDialogOpen} onSave={handleSaveLead} editLead={editingLead} />
 
-        <div className="relative max-w-sm">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Пошук лідів..." className="pl-9" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-        </div>
+        <Tabs defaultValue="funnel" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="funnel">Воронка</TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-1.5">
+              <BarChart3 size={14} /> Аналітика
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {activeStages.map((stage) => {
-            const stageLeads = getLeadsByStage(stage.key);
-            const stageTotal = stageLeads.reduce((s, l) => s + (l.amount || 0), 0);
-            return (
-              <div key={stage.key} className="min-w-[280px] w-[280px] shrink-0" onDragOver={handleDragOver} onDrop={() => handleDrop(stage.key)}>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className={`text-xs ${stage.color}`}>{stage.label}</Badge>
-                    <span className="text-xs text-muted-foreground">{stageLeads.length}</span>
-                  </div>
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {stageTotal > 0 ? `${stageTotal.toLocaleString("uk-UA")} ₴` : ""}
-                  </span>
-                </div>
-                <div className="space-y-2">
-                  {stageLeads.map((lead) => (
-                    <LeadCard key={lead.id} lead={lead} onDragStart={() => handleDragStart(lead.id)} onMoveToStage={(s) => moveLeadToStage(lead.id, s)} onClick={() => openEdit(lead)} />
-                  ))}
-                  {stageLeads.length === 0 && (
-                    <div className="rounded-lg border border-dashed border-border p-6 text-center text-xs text-muted-foreground">Перетягніть лід сюди</div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+          <TabsContent value="funnel" className="space-y-4">
+            <div className="relative max-w-sm">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input placeholder="Пошук лідів..." className="pl-9" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {closedStages.map((stage) => {
-            const stageLeads = getLeadsByStage(stage.key);
-            return (
-              <div key={stage.key} className="bg-card rounded-lg border border-border p-4" onDragOver={handleDragOver} onDrop={() => handleDrop(stage.key)}>
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge variant="outline" className={`text-xs ${stage.color}`}>{stage.label}</Badge>
-                  <span className="text-xs text-muted-foreground">{stageLeads.length}</span>
-                </div>
-                {stageLeads.length > 0 ? (
-                  <div className="space-y-2">
-                    {stageLeads.map((lead) => (
-                      <div key={lead.id} className="flex items-center justify-between py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-2 -mx-2 transition-colors" onClick={() => openEdit(lead)}>
-                        <div>
-                          <p className="text-sm font-medium text-card-foreground">{lead.name}</p>
-                          {lead.company && <p className="text-xs text-muted-foreground">{lead.company}</p>}
-                        </div>
-                        <div className="text-right">
-                          {lead.amount && <p className="text-sm font-semibold text-card-foreground">{lead.amount.toLocaleString("uk-UA")} ₴</p>}
-                          <p className="text-[10px] text-muted-foreground">{lead.updatedAt}</p>
-                        </div>
+            <div className="flex gap-4 overflow-x-auto pb-4">
+              {activeStages.map((stage) => {
+                const stageLeads = getLeadsByStage(stage.key);
+                const stageTotal = stageLeads.reduce((s, l) => s + (l.amount || 0), 0);
+                return (
+                  <div key={stage.key} className="min-w-[280px] w-[280px] shrink-0" onDragOver={handleDragOver} onDrop={() => handleDrop(stage.key)}>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={`text-xs ${stage.color}`}>{stage.label}</Badge>
+                        <span className="text-xs text-muted-foreground">{stageLeads.length}</span>
                       </div>
-                    ))}
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {stageTotal > 0 ? `${stageTotal.toLocaleString("uk-UA")} ₴` : ""}
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {stageLeads.map((lead) => (
+                        <LeadCard key={lead.id} lead={lead} onDragStart={() => handleDragStart(lead.id)} onMoveToStage={(s) => moveLeadToStage(lead.id, s)} onClick={() => openEdit(lead)} />
+                      ))}
+                      {stageLeads.length === 0 && (
+                        <div className="rounded-lg border border-dashed border-border p-6 text-center text-xs text-muted-foreground">Перетягніть лід сюди</div>
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground">Немає лідів</p>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                );
+              })}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {closedStages.map((stage) => {
+                const stageLeads = getLeadsByStage(stage.key);
+                return (
+                  <div key={stage.key} className="bg-card rounded-lg border border-border p-4" onDragOver={handleDragOver} onDrop={() => handleDrop(stage.key)}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Badge variant="outline" className={`text-xs ${stage.color}`}>{stage.label}</Badge>
+                      <span className="text-xs text-muted-foreground">{stageLeads.length}</span>
+                    </div>
+                    {stageLeads.length > 0 ? (
+                      <div className="space-y-2">
+                        {stageLeads.map((lead) => (
+                          <div key={lead.id} className="flex items-center justify-between py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-2 -mx-2 transition-colors" onClick={() => openEdit(lead)}>
+                            <div>
+                              <p className="text-sm font-medium text-card-foreground">{lead.name}</p>
+                              {lead.company && <p className="text-xs text-muted-foreground">{lead.company}</p>}
+                            </div>
+                            <div className="text-right">
+                              {lead.amount && <p className="text-sm font-semibold text-card-foreground">{lead.amount.toLocaleString("uk-UA")} ₴</p>}
+                              <p className="text-[10px] text-muted-foreground">{lead.updatedAt}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">Немає лідів</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <LeadsFunnelAnalytics leads={leads} />
+          </TabsContent>
+        </Tabs>
       </div>
     </CrmLayout>
   );

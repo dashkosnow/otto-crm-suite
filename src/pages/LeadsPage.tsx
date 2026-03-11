@@ -2,9 +2,10 @@ import CrmLayout from "@/components/CrmLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus, Search, Phone, Mail, Building2, User, Calendar,
-  MessageSquare, ArrowRight, UserPlus, MoreHorizontal, Zap,
+  MessageSquare, ArrowRight, UserPlus, MoreHorizontal, Zap, BarChart3,
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +13,7 @@ import { leadsData, leadStages, Lead, LeadStage } from "@/data/leads";
 import { convertLeadToClient } from "@/data/leadConversion";
 import { toast } from "sonner";
 import LeadDialog from "@/components/CreateLeadDialog";
+import LeadsFunnelAnalytics from "@/components/LeadsFunnelAnalytics";
 import {
   DropdownMenu,
   DropdownMenuContent,
